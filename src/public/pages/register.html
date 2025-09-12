@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Competition Registeration</title>
+  <link rel="shortcut icon" href="https://gacbe.ac.in/images/image1.png" type="image/png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+    integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="/styles/register.style.css">
+</head>
+
+<body>
+  <main class="register-container">
+    <h1>Register Now</h1>
+    <p class="text-gray">Secure your spot in the competition by filling out the registeration form</p>
+    <div class="register-card">
+      <h1><i class="fa-solid fa-code" style="color: purple;"></i> Student Registration</h1>
+      <p class="text-gray">Join the coding competition and showcase your programming skills.</p>
+      <div class="divider"></div>
+      <form id="reg-form">
+        <div class="md sm gap">
+          <div class="flex-col">
+            <label for="full_name"><i class="fa-solid fa-user"></i> Full Name</label>
+            <input type="text" id="full_name" name="full_name" placeholder="Enter Name" required>
+          </div>
+          <div class="flex-col">
+            <label for="id"><i class="fa-solid fa-hashtag"></i> Student-ID</label>
+            <input type="text" id="id" name="id" placeholder="Enter Register:No" required>
+          </div>
+        </div>
+        <div class="flex-col">
+          <label for="dep"><i class="fa-solid fa-building"></i> Department</label>
+          <input type="text" id="dep" name="dep" placeholder="Enter Department" required>
+        </div>
+        <div class="md sm gap">
+          <div class="flex-col">
+            <label for="phone"><i class="fa-solid fa-phone"></i> Phone Number</label>
+            <input type="tel" id="phone" name="phone" placeholder="Enter Phone:No" required>
+          </div>
+          <div class="flex-col">
+            <label for="email"><i class="fa-solid fa-envelope"></i> Email Address</label>
+            <input type="email" id="email" name="email" placeholder="Enter E-Mail" required>
+          </div>
+        </div>
+        <div class="md sm gap">
+          <div class="flex-col">
+            <label for="yos"><i class="fa-solid fa-calendar-days"></i> Year of Study</label>
+            <select name="yos" id="yos" required>
+              <option value="2023">2023</option>
+              <option value="2024">2024</option>
+              <option value="2025" selected>2025</option>
+            </select>
+          </div>
+          <div class="flex-col">
+            <label for="exper"><i class="fa-solid fa-code"></i> Prefered Language</label>
+            <select name="lang" id="lang" required>
+              <option value="none" disabled>---Select Language---</option>
+              <option value="c">C</option>
+              <option value="cpp">C++</option>
+              <option value="java" selected>Java</option>
+              <option value="python">Python</option>
+              <option value="js">JavaScript(Node.js v22)</option>
+            </select>
+          </div>
+        </div>
+        <div id="err">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <p id="err-message"></p>
+        </div>
+        <div class="divider"></div>
+        <button type="submit" id="sub-btn">Submit Registration</button>
+        <a href="/">
+          <button type="button" id="back-btn">
+            Back to Home
+          </button>
+        </a>
+      </form>
+    </div>
+  </main>
+  <script>
+    const form = document.getElementById("reg-form");
+    const errBox = document.getElementById("err");
+    const errMessage = document.getElementById("err-message");
+    const subBtn = document.getElementById("sub-btn");
+    const backBtn = document.getElementById("back-btn");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errBox.style.display = "none";
+      subBtn.disabled = true;
+      backBtn.disabled = true;
+      subBtn.style.opacity = 0.7;
+      subBtn.innerHTML = "Submitting... <i class='fa-solid fa-spinner fa-spin'></i>";
+
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
+      try {
+        validation(data.full_name, data.id, data.email, data.dep, data.phone);
+
+        const response = await fetch("/api/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          alert(result.message);
+          location.href = "/";
+        } else {
+          throw new Error(result.message || "Registration failed. Please try again.");
+        }
+      } catch (error) {
+        errMessage.textContent = error.message;
+        errBox.style.display = "flex";
+        subBtn.style.opacity = 1;
+      } finally {
+        subBtn.disabled = false;
+        backBtn.disabled = false;
+        subBtn.innerHTML = "Submit Registration";
+      }
+    });
+
+    form.addEventListener("input", () => {
+      errBox.style.display = "none";
+    });
+
+    const validation = (full_name, id, email, dep, phone) => {
+      if (!full_name.trim() || !email.trim() || !dep.trim() || !id.trim() || !phone.trim()) {
+        throw new Error("Please fill all the fields");
+      } else if (!/^(23|24|25)[A-Z]{3}(0|1)\d{2}$/.test(id)) {
+        throw new Error("Please enter a valid Student ID");
+      } else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+        throw new Error("Please enter a valid email");
+      } else if (!/^[a-zA-Z\s]+$/.test(full_name)) {
+        throw new Error("Name can only contain letters and spaces");
+      } else if (!/^[a-zA-Z\s]+$/.test(dep)) {
+        throw new Error("Department can only contain letters and spaces");
+      } else if (!/^\d{10}$/.test(phone)) {
+        throw new Error("Please enter a valid 10-digit phone number");
+      }
+    };
+  </script>
+</body>
+
+</html>
