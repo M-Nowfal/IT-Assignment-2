@@ -31,8 +31,6 @@ const participantSchema = new mongoose.Schema({
   full_name: { type: String, required: true },
   id: { type: String, required: true, unique: true },
   dep: { type: String, required: true },
-  phone: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
   yos: { type: String, required: true },
   lang: { type: String, required: true },
 }, { timestamps: true });
@@ -50,13 +48,13 @@ app.get("/register", (_req, res) => {
 
 app.post("/api/register", async (req, res) => {
   try {
-    const { full_name, id, dep, phone, email, yos, lang } = req.body;
+    const { full_name, id, dep, yos, lang } = req.body;
 
-    const existingParticipant = await Participant.findOne({ $or: [{ id }, { email }] });
+    const existingParticipant = await Participant.findOne({ $or: [{ id }] });
     if (existingParticipant)
       return res.status(400).json({ message: "You have already registered." });
 
-    await Participant.create({ full_name, id, dep, phone, email, yos, lang });
+    await Participant.create({ full_name, id, dep, yos, lang });
 
     res.status(201).json({
       success: true,
@@ -71,7 +69,6 @@ app.post("/api/register", async (req, res) => {
 app.get("/api/participants", async (_req, res) => {
   try {
     const participants = await Participant.find().sort({ createdAt: -1 });
-
     res.status(200).send(participantsPage(participants));
   } catch (err) {
     res.status(400).json({ message: err.message });

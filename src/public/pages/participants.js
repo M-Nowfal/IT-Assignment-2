@@ -75,6 +75,12 @@ const participantsPage = (participants) => {
           box-shadow: 0px 0px 20px gray;
           font-size: small;
         }
+        .no-participant {
+          text-align: center;
+          font-weight: bold;
+          font-size: 40px;
+          margin-top: 50px;
+        }
       </style>
     </head>
 
@@ -97,19 +103,16 @@ const participantsPage = (participants) => {
               ${participant.yos}
             </p>
             <p>
-              <i class="fa-solid fa-envelope"></i>
-              ${participant.email}
-            </p>
-            <p>
-              <i class="fa-solid fa-phone"></i>
-              ${participant.phone}
-            </p>
-            <p>
               <i class="fa-solid fa-code"></i>
               ${participant.lang}
             </p>
         </div>  
         `)}
+        ${participants.length === 0 ? `<div class="no-participant">
+          <p>No Participants have been registered yet</p>
+          <p>Be the first participant to register</p>
+          <a href="/register" style="position: static; background-color: green;">Register Now</a>
+        </div>` : ""}
       </div>
       <a href="/">Back</a>
     </body>
