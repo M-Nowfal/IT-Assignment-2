@@ -107,7 +107,7 @@ const participantsPage = (participants) => {
               ${participant.lang}
             </p>
         </div>  
-        `)}
+        `).join("")}
         ${participants.length === 0 ? `<div class="no-participant">
           <p>No Participants have been registered yet</p>
           <p>Be the first participant to register</p>
